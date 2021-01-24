@@ -13,3 +13,7 @@ THINGS TO DO:
 -Get metamorphosis defs sorted
 
 -Isolate all compotents so that the system can be used piecemeal;  I would like to have it so people can install whichever components they want and not have to rely on other compotents.  AR CORE is required for most of the stuff, which I would like to have remain so I don't have to make giant tables for every single aff/def in the game for every module.
+
+-HELP NEEDED:  I desparately need lines for.. most all attacks/defs/passives/actives etc in the game.  If you're willing to run through them with me, or have logs where you are doing that, it would be -greatly- appreciated.
+
+
