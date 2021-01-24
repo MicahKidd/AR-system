@@ -6,3 +6,10 @@ Hello and welcome to this massive project.  I've outlined a lot of the shell, an
 Respectfully,
 
 -Chad
+
+
+THINGS TO DO:
+
+-Get metamorphosis defs sorted
+
+-Isolate all compotents so that the system can be used piecemeal;  I would like to have it so people can install whichever components they want and not have to rely on other compotents.  AR CORE is required for most of the stuff, which I would like to have remain so I don't have to make giant tables for every single aff/def in the game for every module.
