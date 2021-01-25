@@ -10,7 +10,7 @@ Respectfully,
 
 THINGS TO DO:
 
--Get metamorphosis defs sorted
+-Get metamorphosis defs sorted:  I have not found a way to put up metamorphosis defs automatically.  I just can't figure out how the hell to get it to auto-morph (pausing so that non-truemorph people can have time to morph).  I can get it to fire off mulitple DEFUP command entries, but I would like to see it automatically morph into whatever you need to defup upon one DEFUP command entry.
 
 -Isolate all compotents so that the system can be used piecemeal;  I would like to have it so people can install whichever components they want and not have to rely on other compotents.  AR CORE is required for most of the stuff, which I would like to have remain so I don't have to make giant tables for every single aff/def in the game for every module.
 
