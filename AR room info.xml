@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<TriggerPackage />
+	<TimerPackage />
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>AR family</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>AR room</name>
+				<script></script>
+				<command></command>
+				<packageName></packageName>
+				<regex></regex>
+				<Alias isActive="yes" isFolder="no">
+					<name>get all from room</name>
+					<script>if arr.roomItems.sigils then
+  for i = 1, #arr.roomItems.sigils do
+    if string.find(arr.roomItems.sigils[i].name, "group") then
+      send("get group " .. arr.roomItems.sigils[i].id)
+    else
+      send("get " .. arr.roomItems.sigils[i].id)
+    end
+  end
+end
+if arr.roomItems.curative then
+  for i = 1, #arr.roomItems.curative do
+    if string.find(arr.roomItems.curative[i].name, "group") then
+      send("get group " .. arr.roomItems.curative[i].id)
+    else
+      send("get " .. arr.roomItems.curative[i].id)
+    end
+  end
+end
+if arr.roomItems.deadbody then
+  for i = 1, #arr.roomItems.deadbody do
+    send("get " .. arr.roomItems.deadbody[i].id)
+  end
+end
+if arr.roomItems.weapon then
+  for i = 1, #arr.roomItems.weapon do
+    send("get " .. arr.roomItems.weapon[i].id)
+  end
+end
+if arr.roomItems.takeable then
+  for i = 1, #arr.roomItems.takeable do
+    if string.find(arr.roomItems.takeable[i].name, "group") then
+      send("get group " .. arr.roomItems.takeable[i].id)
+    else
+      send("get " .. arr.roomItems.takeable[i].id)
+    end
+  end
+end</script>
+					<command></command>
+					<packageName></packageName>
+					<regex>^ar get$</regex>
+				</Alias>
+			</AliasGroup>
+		</AliasGroup>
+	</AliasPackage>
+	<ActionPackage />
+	<ScriptPackage>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>AR family</name>
+			<packageName></packageName>
+			<script>ar = ar or {}
+ar.file = getMudletHomeDir() .. "/AR system"
+if not lfs.attributes(ar.file) then
+  lfs.mkdir(ar.file)
+end
+sendGMCP([[Core.Supports.Add ["Comm.Channel 1", "IRE.Target 1", "IRE.Rift 1"] ]])</script>
+			<eventHandlerList />
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>AR queue</name>
+				<packageName></packageName>
+				<script>arq = arq or {}
+arq.queues = arq.queues or {}
+arq.queues.bal = arq.bal or {}
+arq.queues.eq = arq.eq or {}
+arq.queues.eqbal = arq.eqbal or {}
+arq.queues.class = arq.class or {}
+arq.queues.ship = arq.ship or {}
+for k, v in pairs(arq.queues) do
+  for i = 1, 6 do
+    arq.queues[k][i] = {}
+  end
+end</script>
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>add to queue</name>
+					<packageName></packageName>
+					<script>arq.addQueue =
+  function(queue, action, priority, pos)
+    if table.contains(arq.queues[queue], action) then
+      return
+    end
+    if not priority then
+      priority = 1
+    end
+    if not pos then
+      if #arq.queues[queue][priority] &lt; 10 then
+        table.insert(arq.queues[queue][priority], action)
+      else
+        for i = 1, #arq.queues[queue] do
+          if #arq.queues[queue][i] &lt; 10 then
+            table.insert(arq.queues[queue][i], action)
+            break
+          end
+        end
+      end
+    else
+      table.insert(arq.queues[queue][priority], pos, action)
+      for i = 1, #arq.queues[queue] do
+        local n = 0
+        for k, v in pairs(arq.queues[queue][i]) do
+          if k &gt; 10 then
+            table.insert(arq.queues[queue][i + 1], n + 1, v)
+            table.remove(arq.queues[queue][i], k)
+          end
+        end
+      end
+    end
+  end</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>prealias actions</name>
+					<packageName></packageName>
+					<script>arq.preAlias =
+  function(queue)
+    for i = 1, #arq.queues[queue] do
+      arq.queues[queue][i] = {}
+    end
+    local t = {"curative", "deadbody", "takeable", "weapon"}
+    arq.addQueue(queue, "touch brain", 1, 1)
+    arq.addQueue(queue, "stand", 1, 2)
+    for _, v in pairs(t) do
+      if arr.roomItems[v] then
+        for i = 1, #arr.roomItems[v] do
+          arq.addQueue(queue, "get " .. arr.roomItems[v][i].id, 1, 3)
+        end
+      end
+    end
+  end</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>wielding checker</name>
+					<packageName></packageName>
+					<script>  arq.wielding =
+    function(queue, left, right)
+      local t = {lefthand, righthand}
+      if not left then
+        t.lefthand = "unwield left"
+      end
+      if not right then
+        t.righthand = "unwield right"
+      end
+      if left then
+        if left == "same" then
+          t.lefthand = nil
+        else
+          t.lefthand = "wield left " .. left
+        end
+      end
+      if right then
+        if right == "same" then
+          t.righthand = nil
+        else
+          t.righthand = "wield right " .. right
+        end
+      end
+      for i = 1, #arq.queues[queue] do
+        for j = 1, #arq.queues[queue][i] do
+          if string.match(arq.queues[queue][i][j], "wield") then
+            table.remove(arq.queues[queue][i], j)
+            for _, v in pairs(t) do
+              arq.addQueue(queue, v, 1, j)
+            end
+          else
+            for _, v in pairs(t) do
+              arq.addQueue(queue, v, 1)
+            end
+          end
+        end
+      end
+    end</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>add action</name>
+					<packageName></packageName>
+					<script>arq.addAction =
+  function(queue, action)
+    if arq.lastAction then
+      for _, v in pairs(arq.lastAction) do
+        if table.contains(arq.queues[queue], v) then
+          for i = 1, #arq.queues[queue] do
+            for j = 1, #arq.queues[queue][i] do
+              if arq.queues[queue][i][j] == v then
+                table.remove(arq.queues[queue][i], j)
+              end
+            end
+          end
+        end
+      end
+    end
+    local t = {}
+    t = string.split(action, "/")
+    for _, v in pairs(t) do
+      arq.addQueue(queue, v, 1)
+    end
+    arq.lastAction = table.deepcopy(t)
+  end</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>build aliases</name>
+					<packageName></packageName>
+					<script>arq.buildAlias =
+  function(queue, left, right, action)
+    arq.preAlias(queue)
+    arq.wielding(queue, left, right)
+    arq.addAction(queue, action)
+    send("clearqueue " .. queue)
+    for i = 1, #arq.queues[queue] do
+      if #arq.queues[queue][i] &gt; 0 then
+        send("setalias " .. ars.myInfo.class .. i .. " " .. table.concat(arq.queues[queue][i], "/"))
+        send("queue addclear eqbal " .. ars.myInfo.class .. i)
+      end
+    end
+  end</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
+		</ScriptGroup>
+	</ScriptPackage>
+	<KeyPackage />
+	<VariablePackage>
+		<HiddenVariables />
+	</VariablePackage>
+</MudletPackage>
