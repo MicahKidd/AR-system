@@ -169,7 +169,7 @@ registerAnonymousEventHandler("sysDownloadDone", "arn.downloadPlayerInfo")</scri
       if arn.people[who].city == "(hidden)" then
         if table.contains(arn.manualCityList, tostring(who)) == false then
           cechoLink(
-            "&lt;gold&gt;" .. who .. "&lt;white&gt; city hidden, manual honors required",
+            "&lt;gold&gt;" .. who .. "&lt;white&gt; city hidden, manual honors required.\n",
             [[arn.manualHonors("]] .. who .. [[")]],
             "click to manual honors " .. who,
             true
