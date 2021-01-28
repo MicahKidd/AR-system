@@ -1,1 +1,4 @@
+AR core is the only part of the AR system that is required for the modules to work.  It contains lists, coloration, etc for the rest of the system, as well as the installation and skills parsers
+
+AR SKILLS is a bit wonky.... doesn't particularly like to update well on class change, something to do with the delay in GMCP.
 
