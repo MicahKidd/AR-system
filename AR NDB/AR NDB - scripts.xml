@@ -170,11 +170,16 @@ registerAnonymousEventHandler("sysDownloadDone", "arn.downloadPlayerInfo")</scri
       end,
       1
     )
-    if arn.people[who].city == "(hidden)" then
-      arn.people[who].city = "(none)"
-      arn.manualCityList[who] = "(none)"
-      table.save(arn.file .. "/manual city table", arn.manualCityList)
-    end
+    tempPromptTrigger(
+      function()
+        if arn.people[who].city == "(hidden)" then
+          arn.people[who].city = "(none)"
+          arn.manualCityList[who] = "(none)"
+          table.save(arn.file .. "/manual city table", arn.manualCityList)
+        end
+      end,
+      1
+    )
   end</script>
 				<eventHandlerList />
 			</Script>
