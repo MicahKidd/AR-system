@@ -68,7 +68,7 @@ arq.timers = arq.timers or {}</script>
     arq.addQueue(queue, "touch brain", 1, 1)
     arq.addQueue(queue, "stand", 1, 2)
     for _, v in pairs(t) do
-      if arr.roomItems[v] then
+      if arr.roomItems and arr.roomItems[v] then
         for i = 1, #arr.roomItems[v] do
           if string.find(arr.roomItems[v][i].name, "group") then
             arq.addQueue(queue, "get group " .. arr.roomItems[v][i].id, 1, 3)
