@@ -1,0 +1,4 @@
+AR NDB.... known issues
+
+When manual honors'ing a rogue with a hidden city in the API, the manual table will then color the rouge as the NEXT city for someone you manually honors.
+
