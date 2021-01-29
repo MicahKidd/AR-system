@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<ScriptPackage>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>AR bashing</name>
+			<packageName></packageName>
+			<script>arb  = arb or {}
+if ar then
+  arb.file = ar.file .. "/bashing"
+else
+  arb.file = getMudletHomeDir() .. "/bashing"
+end
+if not lfs.attributes(arb.file) then
+  lfs.mkdir(arb.file)
+end</script>
+			<eventHandlerList />
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>lists</name>
+				<packageName></packageName>
+				<script></script>
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>bashing attacks by class</name>
+					<packageName></packageName>
+					<script>arb.bashingAttacks = {
+alchemist = "educe iron &amp;tar",
+apostate = "deadeyes &amp;tar bleed bleed",
+bard = "tunesmith rapier accentato/jab &amp;tar",
+blademaster = "drawslash &amp;tar",
+depthswalker = "shadow reap &amp;tar",
+druid = "maul &amp;tar",
+infernal = "dsl &amp;tar",
+jester = "bop &amp;tar",
+magi = "staffcast scintilla &amp;tar",
+monk = "combo &amp;tar sdk ucp ucp",
+occultist = "warp &amp;tar",
+paladin = "dsl &amp;tar",
+pariah = "epitaph advance &amp;tar",
+priest = "smite &amp;tar",
+psion = "weave overhand &amp;tar",
+runewarden = "dsl &amp;tar",
+sentinel = "thrust &amp;tar",
+serpent = "garrote &amp;tar",
+shaman = "curse &amp;tar bleed",
+slyvan = "thornrend &amp;tar",
+dragon = "gut &amp;tar",
+waterlord = "manifest blade &amp;tar",
+airlord = "manifest buffet &amp;tar",
+firelord = "ignite flamewhip &amp;tar",
+earthlord = "terran pulverise &amp;tar",}
+
+
+
+</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>battlerage attacks</name>
+					<packageName></packageName>
+					<script>arb.battlerageTable = {
+["alchemist"] = {
+[16] = {["type"] = "damage",["cost"] = 16},}}</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
+		</ScriptGroup>
+	</ScriptPackage>
+</MudletPackage>
