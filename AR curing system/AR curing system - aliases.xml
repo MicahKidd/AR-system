@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>Curing system</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>Cureset config</name>
+				<script></script>
+				<command></command>
+				<packageName></packageName>
+				<regex></regex>
+				<AliasGroup isActive="yes" isFolder="yes">
+					<name>Cureset window</name>
+					<script></script>
+					<command></command>
+					<packageName></packageName>
+					<regex></regex>
+					<Alias isActive="yes" isFolder="no">
+						<name>call cureset window</name>
+						<script>cmenu.main:show()</script>
+						<command></command>
+						<packageName></packageName>
+						<regex>^ars cureset window$</regex>
+					</Alias>
+					<Alias isActive="yes" isFolder="no">
+						<name>New alias</name>
+						<script></script>
+						<command></command>
+						<packageName></packageName>
+						<regex></regex>
+					</Alias>
+					<Alias isActive="yes" isFolder="no">
+						<name>New alias</name>
+						<script></script>
+						<command></command>
+						<packageName></packageName>
+						<regex></regex>
+					</Alias>
+				</AliasGroup>
+			</AliasGroup>
+			<AliasGroup isActive="yes" isFolder="yes">
+				<name>defenses</name>
+				<script></script>
+				<command></command>
+				<packageName></packageName>
+				<regex></regex>
+				<Alias isActive="yes" isFolder="no">
+					<name>defup</name>
+					<script>raiseEvent("ars.startDefup")</script>
+					<command></command>
+					<packageName></packageName>
+					<regex>^defup$</regex>
+				</Alias>
+			</AliasGroup>
+		</AliasGroup>
+	</AliasPackage>
+</MudletPackage>
