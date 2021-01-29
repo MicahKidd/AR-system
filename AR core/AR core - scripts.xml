@@ -5,7 +5,21 @@
 		<ScriptGroup isActive="yes" isFolder="yes">
 			<name>AR core</name>
 			<packageName></packageName>
-			<script></script>
+			<script>
+				ar = ar or {}
+				ar.file = getMudletHomeDir() .. "/AR system"
+					if not lfs.attributes(ar.file) then
+ 					 lfs.mkdir(ar.file)
+					end
+				ar.login =
+				  function()
+				    sendGMCP(
+	      [[Core.Supports.Add ["Comm 1", "IRE 1", "Comm.Channel 1", "IRE.Target 1", "IRE.Rift 1"] ]]
+    						)
+    						send(" ")
+  end
+			registerAnonymousEventHandler("ar.welcome", "ar.login")
+			</script>
 			<eventHandlerList />
 			<ScriptGroup isActive="yes" isFolder="yes">
 				<name>lists</name>
