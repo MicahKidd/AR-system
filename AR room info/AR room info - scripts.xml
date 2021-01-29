@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<ScriptPackage>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>AR room</name>
+			<packageName></packageName>
+			<script>arr = arr or {}
+</script>
+			<eventHandlerList />
+			<ScriptGroup isActive="yes" isFolder="yes">
+				<name>GMCP parsers</name>
+				<packageName></packageName>
+				<script></script>
+				<eventHandlerList />
+				<Script isActive="yes" isFolder="no">
+					<name>info room</name>
+					<packageName></packageName>
+					<script>arr.getInfo =
+  function()
+    arr.roomInfo = arr.roomInfo or {}
+    local newroom = gmcp.Room.Info.num
+    if arr.roomInfo.number ~= newroom then
+      arr.roomInfo.lastRoom = arr.roomInfo.number
+      arr.roomInfo.number = newroom
+      arr.roomInfo.exits = table.deepcopy(gmcp.Room.Info.exits)
+      arr.roomInfo.area = gmcp.Room.Info.area
+      arr.roomInfo.environment = gmcp.Room.Info.environment:lower()
+      arr.roomInfo.details = table.deepcopy(gmcp.Room.Info.details)
+    end
+    arr.roomInfo.name = gmcp.Room.Info.name:lower()
+    if
+      string.find(arr.roomInfo.name, "flying") ~= nil and
+      table.contains(arr.roomInfo.details, "flying") == false
+    then
+      table.insert(arr.roomInfo.details, "flying")
+    elseif
+      string.find(arr.roomInfo.name, "flying") == nil and
+      table.contains(arr.roomInfo.details, "flying") == true
+    then
+      table.remove(arr.roomInfo.details, table.index_of(arr.roomInfo.details, "flying"))
+    end
+  end
+registerAnonymousEventHandler("gmcp.Room.Info", "arr.getInfo")</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>info players</name>
+					<packageName></packageName>
+					<script>arr.infoPlayers =
+  function(event)
+    if event == "gmcp.Room.Players" then
+      local t = {}
+      for i = 1, #gmcp.Room.Players do
+        table.insert(t, gmcp.Room.Players[i].name)
+      end
+      arr.players = table.deepcopy(t)
+    end
+    if event == "gmcp.Room.AddPlayer" then
+      if table.contains(arr.players, gmcp.Room.AddPlayer) == false then
+       if arr.players then  table.insert(arr.players, gmcp.Room.AddPlayer.name) end
+      end
+    end
+    if event == "gmcp.Room.RemovePlayer" then
+      if table.contains(arr.players, gmcp.Room.RemovePlayer) == true then
+        table.remove(arr.players, table.index_of(arr.players, gmcp.Room.RemovePlayer))
+      end
+    end
+  end
+registerAnonymousEventHandler("gmcp.Room.Players", "arr.infoPlayers")
+registerAnonymousEventHandler("gmcp.Room.AddPlayer", "arr.infoPlayers")
+registerAnonymousEventHandler("gmcp.Room.RemovePlayer", "arr.infoPlayers")</script>
+					<eventHandlerList />
+				</Script>
+				<Script isActive="yes" isFolder="no">
+					<name>info list</name>
+					<packageName></packageName>
+					<script>arr.infoList =
+  function()
+    local t = {}
+    if gmcp.Char.Items.List.location == "room" then
+      for i = 1, #gmcp.Char.Items.List.items do
+        if gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "guard" then
+          t.guard = t.guard or {}
+          table.insert(t.guard, gmcp.Char.Items.List.items[i])
+          elseif gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "shrine" then
+          t.shrine = t.shrine or {}
+          table.insert(t.shrine, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "rune"
+        then
+          if gmcp.Char.Items.List.items[i].name == "a runic totem" then
+            t.totem = t.totem or {}
+            table.insert(t.totem, gmcp.Char.Items.List.items[i])
+          elseif string.find(gmcp.Char.Items.List.items[i].name, "sigil") then
+            t.sigils = t.sigils or {}
+            table.insert(t.sigils, gmcp.Char.Items.List.items[i])
+          end
+        elseif
+          gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "curative"
+        then
+          t.curative = t.curative or {}
+          table.insert(t.curative, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "weapon"
+        then
+          t.weapon = t.weapon or {}
+          table.insert(t.weapon, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].icon and gmcp.Char.Items.List.items[i].icon == "deadbody"
+        then
+          t.deadbody = t.deadbody or {}
+          table.insert(t.deadbody, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].attrib and gmcp.Char.Items.List.items[i].attrib == "m"
+        then
+          t.mobs = t.mobs or {}
+          table.insert(t.mobs, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].attrib and gmcp.Char.Items.List.items[i].attrib == "t"
+        then
+          t.takeable = t.takeable or {}
+          table.insert(t.takeable, gmcp.Char.Items.List.items[i])
+        elseif
+          gmcp.Char.Items.List.items[i].attrib and gmcp.Char.Items.List.items[i].attrib == "mx"
+        then
+          t.mounts = t.mounts or {}
+          table.insert(t.mounts, gmcp.Char.Items.List.items[i])
+        else
+          t.random = t.random or {}
+          table.insert(t.random, gmcp.Char.Items.List.items[i])
+        end
+      end
+      arr.roomItems = table.deepcopy(t)
+    end
+  end
+registerAnonymousEventHandler("gmcp.Char.Items.List", "arr.infoList")
+arr.infoAddRemove =
+  function(event)
+    if event == "gmcp.Char.Items.Remove" and gmcp.Char.Items.Remove.location == "room" then
+      for k, v in pairs(arr.roomItems) do
+        for i = 1, #arr.roomItems[k] do
+          if arr.roomItems[k][i].id == gmcp.Char.Items.Remove.item.id then
+            table.remove(arr.roomItems[k], i)
+            if table.is_empty(arr.roomItems[k]) then
+              arr.roomItems[k] = nil
+            end
+            return
+          end
+        end
+      end
+    elseif event == "gmcp.Char.Items.Add" and gmcp.Char.Items.Add.location == "room" then
+      if gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.icon == "guard" then
+        arr.roomItems.guard = arr.roomItems.guard or {}
+        table.insert(arr.roomItems.guard, gmcp.Char.Items.Add.item)
+      elseif gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.icon == "rune" then
+        if gmcp.Char.Items.Add.item.name == "a runic totem" then
+          arr.roomItems.totem = arr.roomItems.totem or {}
+          table.insert(arr.roomItems.totem, gmcp.Char.Items.Add.item)
+        elseif string.find(gmcp.Char.Items.Add.item.name, "sigil") then
+          arr.roomItems.sigils = arr.roomItems.sigils or {}
+          table.insert(arr.roomItems.sigils, gmcp.Char.Items.Add.item)
+        end
+      elseif gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.icon == "curative" then
+        arr.roomItems.curative = arr.roomItems.curative or {}
+        table.insert(arr.roomItems.curative, gmcp.Char.Items.Add.item)
+      elseif gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.icon == "weapon" then
+        arr.roomItems.weapon = arr.roomItems.weapon or {}
+        table.insert(arr.roomItems.weapon, gmcp.Char.Items.Add.item)
+      elseif gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.icon == "deadbody" then
+        arr.roomItems.deadbody = arr.roomItems.deadbody or {}
+        table.insert(arr.roomItems.deadbody, gmcp.Char.Items.Add.item)
+      elseif gmcp.Char.Items.Add.item.icon and gmcp.Char.Items.Add.item.attrib == "m" then
+        arr.roomItems.mobs = arr.roomItems.mobs or {}
+        table.insert(arr.roomItems.mobs, gmcp.Char.Items.Add.item)
+      elseif gmcp.Char.Items.Add.item.attrib and gmcp.Char.Items.Add.item.attrib == "t" then
+        if string.find(gmcp.Char.Items.Add.item.name, "sigil") then
+          arr.roomItems.sigils = arr.roomItems.sigils or {}
+          table.insert(arr.roomItems.sigils, gmcp.Char.Items.Add.item)
+        else
+          arr.roomItems.takeable = arr.roomItems.takeable or {}
+          table.insert(arr.roomItems.takeable, gmcp.Char.Items.Add.item)
+        end
+      elseif gmcp.Char.Items.Add.item.attrib and gmcp.Char.Items.Add.item.attrib == "mx" then
+        arr.roomItems.mounts = arr.roomItems.mounts or {}
+        table.insert(arr.roomItems.mounts, gmcp.Char.Items.Add.item)
+      else
+        arr.roomItems.random = arr.roomItems.random or {}
+        table.insert(arr.roomItems.random, gmcp.Char.Items.Add.item)
+      end
+    end
+  end
+registerAnonymousEventHandler("gmcp.Char.Items.Remove", "arr.infoAddRemove")
+registerAnonymousEventHandler("gmcp.Char.Items.Add", "arr.infoAddRemove")</script>
+					<eventHandlerList />
+				</Script>
+			</ScriptGroup>
+		</ScriptGroup>
+	</ScriptPackage>
+</MudletPackage>

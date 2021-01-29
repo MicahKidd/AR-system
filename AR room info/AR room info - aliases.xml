@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>AR room</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>get all from room</name>
+				<script>if arr.roomItems.sigils then
+  for i = 1, #arr.roomItems.sigils do
+    if string.find(arr.roomItems.sigils[i].name, "group") then
+      send("get group " .. arr.roomItems.sigils[i].id)
+    else
+      send("get " .. arr.roomItems.sigils[i].id)
+    end
+  end
+end
+if arr.roomItems.curative then
+  for i = 1, #arr.roomItems.curative do
+    if string.find(arr.roomItems.curative[i].name, "group") then
+      send("get group " .. arr.roomItems.curative[i].id)
+    else
+      send("get " .. arr.roomItems.curative[i].id)
+    end
+  end
+end
+if arr.roomItems.deadbody then
+  for i = 1, #arr.roomItems.deadbody do
+    send("get " .. arr.roomItems.deadbody[i].id)
+  end
+end
+if arr.roomItems.weapon then
+  for i = 1, #arr.roomItems.weapon do
+    send("get " .. arr.roomItems.weapon[i].id)
+  end
+end
+if arr.roomItems.takeable then
+  for i = 1, #arr.roomItems.takeable do
+    if string.find(arr.roomItems.takeable[i].name, "group") then
+      send("get group " .. arr.roomItems.takeable[i].id)
+    else
+      send("get " .. arr.roomItems.takeable[i].id)
+    end
+  end
+end</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^ar get$</regex>
+			</Alias>
+		</AliasGroup>
+	</AliasPackage>
+</MudletPackage>
