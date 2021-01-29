@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>core</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>install</name>
+				<script>if not matches[2] then
+  cecho(
+    "\n&lt;red&gt;::::&lt;yellow&gt;WARNING&lt;red&gt;:::: &lt;white&gt; Will run installation, resetting all curing options.  Please type 'ar install confirm' to confirm installation"
+  )
+else
+  enableTrigger("ar installation - DO NOT UNLOCK")
+  for k, v in pairs(ar.install.progress) do
+    ar.install.progress[k] = false
+  end
+  ar.install.installed = false
+  raiseEvent("ar.install.startInstall")
+end</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^ar install( confirm)?</regex>
+			</Alias>
+		</AliasGroup>
+	</AliasPackage>
+</MudletPackage>
