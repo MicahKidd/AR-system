@@ -719,7 +719,7 @@ registerAnonymousEventHandler("cmenu.keepup", "cmenu.keepupClick")</script>
     cmenu.miniConsole:clear()
     cmenu.miniConsole:echo(string.rep(" ", math.floor((columns / 2) - (#cmenu.currentCureset / 2))))
     cmenu.miniConsole:cechoLink(
-      "&lt;white&gt;" .. cmenu.currentCureset,
+      "<white>" .. cmenu.currentCureset,
       [[cmenu.classClick("]] .. cmenu.currentTab .. [[")]],
       "Back",
       true
@@ -727,19 +727,38 @@ registerAnonymousEventHandler("cmenu.keepup", "cmenu.keepupClick")</script>
     cmenu.miniConsole:echo("\n")
     cmenu.miniConsole:echo(string.rep(" ", math.floor((columns / 2) - 2)))
     cmenu.miniConsole:cechoLink(
-      "&lt;white&gt;Options", [[cmenu.curesetClick("]] .. cmenu.currentCureset .. [[")]], "Back", true
+      "<white>Options", [[cmenu.curesetClick("]] .. cmenu.currentCureset .. [[")]], "Back", true
     )
+    cmenu.commandLine =
+      Geyser.CommandLine:new(
+        {
+          name = "cmenu command line",
+          x = "1c",
+          y = "96%",
+          height = "2c",
+          width = "98%",
+          stylesheet = "border: 1px solid silver;",
+        },
+        cmenu.miniConsole
+      )
     cmenu.miniConsole:echo("\n")
     cmenu.miniConsole:echo("\n")
     for k, v in pairs(ars.curesets[cmenu.currentTab][cmenu.currentCureset].options) do
       cmenu.miniConsole:cechoLink(
-        "&lt;white&gt;" .. k .. " : " .. tostring(v),
-        [[cmenu.miniConsole:printCmd("]] .. k .. [[")]],
+        "<white>" .. k .. " : " .. tostring(v),
+        [[clearCmdLine("cmenu command line") appendCmdLine("cmenu command line", "]] .. k .. [[ : ")]],
         "Change the value of: " .. k,
         true
       )
       cmenu.miniConsole:echo("\n")
     end
+    cmdlineprioswap =
+      function(cmdLineText)
+        for o, p in string.gmatch(cmdLineText, "(.*) : (.*)") do
+          cmenu.prioAdjust("cmdlineoptions", o, p)
+        end
+      end
+    setCmdLineAction("cmenu command line", "cmdlineprioswap")
   end
 registerAnonymousEventHandler("cmenu.option", "cmenu.optionsClick")</script>
 							<eventHandlerList />
@@ -750,40 +769,55 @@ registerAnonymousEventHandler("cmenu.option", "cmenu.optionsClick")</script>
 							<script>cmenu.prioAdjust =
   function(arg1, arg2, num)
     local eventGroup
+    if arg1 == "cmdlineoptions" then
+      if string.find(num, "%d+") then
+        num = tonumber(num)
+      end
+      ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].options[arg2] = num
+      if cmenu.currentTab:lower() == ars.myInfo.class and cmenu.currentCureset == ars.myCureset then
+        send(arg2 .. " " .. tostring(num))
+      end
+      table.save(ars.file .. "/curesets", ars.curesets)
+      raiseEvent("cmenu.option", cmenu.prioGroup)
+    end
     if arg1 == "cmdlineAffs" then
       ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] = num
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] &lt; 1 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] < 1 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] = 1
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] &gt; 26 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] > 26 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2] = 26
       end
-      send(
-        "curing priority " ..
-        arg2 ..
-        " " ..
-        ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2]
-      )
+      if cmenu.currentTab:lower() == ars.myInfo.class and cmenu.currentCureset == ars.myCureset then
+        send(
+          "curing priority " ..
+          arg2 ..
+          " " ..
+          ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].affs[arg2]
+        )
+      end
       table.save(ars.file .. "/curesets", ars.curesets)
       raiseEvent("cmenu.prioChange", cmenu.prioGroup)
     end
     if arg1 == "cmdlineDefs" then
       ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] = num
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] &gt; 26 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] > 26 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] = 26
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] &lt; 1 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] < 1 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] = 1
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] == 26 then
-        send("curing priority defense " .. arg2 .. " reset")
-      else
-        send(
-          "curing priority defense " ..
-          arg2 ..
-          " " ..
-          ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2]
-        )
+      if cmenu.currentTab:lower() == ars.myInfo.class and cmenu.currentCureset == ars.myCureset then
+        if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2] == 26 then
+          send("curing priority defense " .. arg2 .. " reset")
+        else
+          send(
+            "curing priority defense " ..
+            arg2 ..
+            " " ..
+            ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset].keepup[arg2]
+          )
+        end
       end
       table.save(ars.file .. "/curesets", ars.curesets)
       raiseEvent("cmenu.keepup", cmenu.prioGroup)
@@ -791,18 +825,20 @@ registerAnonymousEventHandler("cmenu.option", "cmenu.optionsClick")</script>
     if arg1 == "affs" then
       ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] =
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] + num
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] &lt; 1 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] < 1 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] = 1
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] &gt; 26 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] > 26 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] = 26
       end
-      send(
-        "curing priority " ..
-        arg2 ..
-        " " ..
-        ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2]
-      )
+      if cmenu.currentTab:lower() == ars.myInfo.class and cmenu.currentCureset == ars.myCureset then
+        send(
+          "curing priority " ..
+          arg2 ..
+          " " ..
+          ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2]
+        )
+      end
       table.save(ars.file .. "/curesets", ars.curesets)
       raiseEvent("cmenu.prioChange", cmenu.prioGroup)
     end
@@ -812,21 +848,23 @@ registerAnonymousEventHandler("cmenu.option", "cmenu.optionsClick")</script>
       end
       ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] =
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] + num
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] &lt; 1 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] < 1 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] = 1
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] &gt; 26 then
+      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] > 26 then
         ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] = 26
       end
-      if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] == 26 then
-        send("curing priority defence " .. arg2 .. " reset")
-      else
-        send(
-          "curing priority defence " ..
-          arg2 ..
-          " " ..
-          ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2]
-        )
+      if cmenu.currentTab:lower() == ars.myInfo.class and cmenu.currentCureset == ars.myCureset then
+        if ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2] == 26 then
+          send("curing priority defence " .. arg2 .. " reset")
+        else
+          send(
+            "curing priority defence " ..
+            arg2 ..
+            " " ..
+            ars.curesets[cmenu.currentTab:lower()][cmenu.currentCureset][arg1][arg2]
+          )
+        end
       end
       table.save(ars.file .. "/curesets", ars.curesets)
       raiseEvent("cmenu.keepup", cmenu.prioGroup)
