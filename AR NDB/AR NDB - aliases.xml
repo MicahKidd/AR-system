@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<AliasPackage>
+		<AliasGroup isActive="yes" isFolder="yes">
+			<name>NDB</name>
+			<script></script>
+			<command></command>
+			<packageName></packageName>
+			<regex></regex>
+			<Alias isActive="yes" isFolder="no">
+				<name>manually get info</name>
+				<script>arn.manualInfo(matches[2]:title())</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^arn info (\S+)$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>manually honors</name>
+				<script>arn.manualHonors(matches[2]:title())</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^arn honors (\S+)$</regex>
+			</Alias>
+			<Alias isActive="yes" isFolder="no">
+				<name>reports</name>
+				<script>if arn.cityColors[matches[2]:lower()] or matches[2] == "rogue" then
+  if matches[2] == "rogue" then
+    arn.cityReport("(none)")
+  else
+    arn.cityReport(matches[2]:lower())
+  end
+else
+  arn.personReport(matches[2]:title())
+end</script>
+				<command></command>
+				<packageName></packageName>
+				<regex>^arn report (\S+)$</regex>
+			</Alias>
+		</AliasGroup>
+	</AliasPackage>
+</MudletPackage>

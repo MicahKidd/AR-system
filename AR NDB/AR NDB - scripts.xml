@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<ScriptPackage>
+		<ScriptGroup isActive="yes" isFolder="yes">
+			<name>AR NDB</name>
+			<packageName></packageName>
+			<script>arn = arn or {}
+if ar then
+  arn.file = ar.file .. "/NDB"
+else
+  arn.file = getMudletHomeDir() .. "/NDB"
+end
+if not lfs.attributes(arn.file) then
+  lfs.mkdir(arn.file)
+end
+if not lfs.attributes(arn.file .. "/who tables") then
+  lfs.mkdir(arn.file .. "/who tables")
+end
+if not lfs.attributes(arn.file .. "/players") then
+  lfs.mkdir(arn.file .. "/players")
+end
+arn.getWhoList()
+if arn.getWhoTimer then
+  killTimer(arn.getWhoTimer)
+end
+arn.getWhoTimer =
+  tempTimer(
+    30,
+    function()
+      arn.getWhoList()
+    end,
+    true
+  )
+arn.manualCityList = arn.manualCityList or {}
+if io.exists(arn.file .. "/manual city table") then
+  table.load(arn.file .. "/manual city table", arn.manualCityList)
+end
+arn.cityColors =
+  arn.cityColors or
+  {
+    ["hashan"] = "orange",
+    ["ashtan"] = "magenta",
+    ["cyrene"] = "DodgerBlue",
+    ["targossas"] = "khaki",
+    ["mhaldor"] = "red",
+    ["eleusis"] = "ForestGreen",
+    ["(none)"] = "grey",
+    ["(hidden)"] = "SkyBlue",
+  }
+arn.highlights =
+  arn.highlights or {city = {}, cityEnemy = {}, myEnemy = {}, orderEnemy = {}, watchFor = {}}
+arn.people = arn.people or {}</script>
+			<eventHandlerList />
+			<Script isActive="yes" isFolder="no">
+				<name>get who list</name>
+				<packageName></packageName>
+				<script>arn.getWhoList =
+  function()
+    local path = arn.file .. "/who tables"
+    downloadFile(path .. "/wholist.json", "http:\/\/api.achaea.com\/characters.json")
+  end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>populate people table</name>
+				<packageName></packageName>
+				<script>arn.downloadPlayerInfo =
+  function(event, arg)
+    if event == "sysDownloadDone" and string.find(arg, "wholist") then
+      arn.people = arn.people or {}
+      arn.who = {}
+      local t = {}
+      local f, s = io.open(arn.file .. "/who tables/wholist.json")
+      if f then
+        s = f:read("*l"):trim();
+        io.close(f)
+      end
+      t = yajl.to_value(s)
+      for i = 1, #t.characters do
+        downloadFile(
+          arn.file .. "/players/" .. t.characters[i].name .. ".json", t.characters[i].uri
+        )
+        table.insert(arn.who, t.characters[i].name)
+      end
+    end
+    if event == "sysDownloadDone" and string.find(arg, "players") then
+      for player in string.gmatch(arg, arn.file .. "/players/(%w+)") do
+        local f, s = io.open(arn.file .. "/players/" .. player .. ".json")
+        if f then
+          s = f:read("*l"):trim();
+          io.close(f)
+        end
+        arn.people[player] = yajl.to_value(s)
+        arn.cityHighLight(player)
+      end
+    end
+  end
+registerAnonymousEventHandler("sysDownloadDone", "arn.downloadPlayerInfo")</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>city highlight</name>
+				<packageName></packageName>
+				<script>arn.cityHighLight =
+  function(who)
+    if arn.highlights.city[who] then
+      killTrigger(arn.highlights.city[who])
+    end
+    if arn.people[who] and arn.people[who].city then
+      if arn.people[who].city == "(hidden)" then
+        if table.contains(arn.manualCityList, tostring(who)) == false then
+          cechoLink(
+            "&lt;gold&gt;" .. who .. "&lt;white&gt; city hidden, manual honors required",
+            [[arn.manualHonors("]] .. who .. [[")]],
+            "click to manual honors " .. who,
+            true
+          )
+        else
+          arn.people[who].city = arn.manualCityList[who]
+        end
+      end
+      if arn.cityColors[arn.people[who].city] then
+        arn.highlights.city[who] =
+          tempRegexTrigger(
+            who,
+            function()
+              selectString(tostring(who), 1)
+              fg(arn.cityColors[arn.people[who].city])
+              deselect()
+              resetFormat()
+            end
+          )
+      end
+    end
+  end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>manual info</name>
+				<packageName></packageName>
+				<script>arn.manualInfo =
+  function(who)
+    downloadFile(
+      arn.file .. "/players/" .. who .. ".json",
+      "https:\/\/api.achaea.com\/characters\/" .. who .. ".json"
+    )
+  end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>manual honors</name>
+				<packageName></packageName>
+				<script>arn.manualHonors =
+  function(who)
+    if arn.highlights.city[who] then
+      killTimer(arn.highlights.city[who])
+    end
+    if not arn.people[who] then
+      arn.manualInfo(who)
+      return
+    end
+    send("queue addclear eqbal honors " .. who)
+    tempRegexTrigger(
+      [[\w+ is (?:a|an) \w+ in (\w+)\.]],
+      function()
+        arn.manualCityList[who] = matches[2]:lower()
+        arn.people[who].city = matches[2]:lower()
+        table.save(arn.file .. "/manual city table", arn.manualCityList)
+      end,
+      1
+    )
+    if arn.people[who].city == "(hidden)" then
+      arn.people[who].city = "(none)"
+      arn.manualCityList[who] = "(none)"
+      table.save(arn.file .. "/manual city table", arn.manualCityList)
+    end
+  end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>city report</name>
+				<packageName></packageName>
+				<script>arn.cityReport =
+  function(city)
+    local t = {}
+    for _, k in pairs(arn.who) do
+      if arn.people[k].city and arn.people[k].city == city:lower() then
+        t[k] = {class = arn.people[k].class, level = arn.people[k].level}
+      end
+    end
+    cecho(
+      "\n&lt;" ..
+      arn.cityColors[city:lower()] ..
+      "&gt;" ..
+      string.rep(" ", (getColumnCount() / 6) - (#city / 2)) ..
+      city:title()
+    )
+    cecho("\n&lt;white&gt;@" .. string.rep("-", getColumnCount() / 3) .. "@\n")
+    for k, _ in pairs(t) do
+      cecho(
+        "\n&lt;" ..
+        arn.cityColors[city:lower()] ..
+        "&gt;" ..
+        k ..
+        string.rep(" ", getColumnCount() / 10 - #k) ..
+        "&lt;white&gt;class : " ..
+        t[k].class ..
+        string.rep(" ", getColumnCount() / 9 -#t[k].class) ..
+        "Lvl : " ..
+        t[k].level
+      )
+    end
+    cecho("\n\n&lt;white&gt;@" .. string.rep("-", getColumnCount() / 3) .. "@")
+  end</script>
+				<eventHandlerList />
+			</Script>
+			<Script isActive="yes" isFolder="no">
+				<name>person report</name>
+				<packageName></packageName>
+				<script>arn.personReport =
+  function(who)
+    if not arn.people[who] then
+      arn.manualInfo(who)
+      return cecho("\nGetting " .. who .. "'s info, please resubmit your inquiry!")
+    end
+    cecho(
+      "\n&lt;white&gt;" ..
+      string.rep(" ", (getColumnCount() / 6) - (#arn.people[who].fullname / 2)) ..
+      arn.people[who].fullname
+    )
+    cecho("\n&lt;white&gt;@" .. string.rep("-", getColumnCount() / 3) .. "@\n")
+    cecho("\n&lt;blue&gt;City      &lt;gold&gt;    :  &lt;white&gt; " .. arn.people[who].city:title())
+    cecho("\n&lt;blue&gt;House   &lt;gold&gt;      : &lt;white&gt;  " .. arn.people[who].house:title())
+    cecho("\n&lt;blue&gt;Class   &lt;gold&gt;      : &lt;white&gt;  " .. arn.people[who].class:title())
+    cecho("\n&lt;blue&gt;Level    &lt;gold&gt;     : &lt;white&gt;  " .. arn.people[who].level)
+    cecho("\n&lt;blue&gt;PK's     &lt;gold&gt;     : &lt;white&gt;  " .. arn.people[who].player_kills)
+    cecho("\n&lt;blue&gt;XP rank   &lt;gold&gt;    : &lt;white&gt;  " .. arn.people[who].xp_rank)
+    cecho("\n&lt;blue&gt;Exporer rank &lt;gold&gt; : &lt;white&gt;  " .. arn.people[who].explorer_rank)
+    cecho("\n\n&lt;white&gt;@" .. string.rep("-", getColumnCount() / 3) .. "@")
+  end</script>
+				<eventHandlerList />
+			</Script>
+		</ScriptGroup>
+	</ScriptPackage>
+</MudletPackage>
