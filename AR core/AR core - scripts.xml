@@ -2058,25 +2058,27 @@ ar.skills.misc = {"vision", "survival", "tattoos", "weaponry", "riding", "seafar
         "Constitution",
         "Avoidance",
       }
-
-      ar.mySkills = {}
-      if ars.myInfo.class then
-        if io.exists(ar.file .. "/skills/skill list " .. ars.myInfo.class) then
-          table.load(ar.file .. "/skills/skill list " .. ars.myInfo.class, ar.mySkills)
-          return
-        else
-          sendGMCP("Char.Skills.Get " .. yajl.to_string({}))
-          send(" ")
-        end
-      end
-
-    for i = 1, #gmcp.Char.Skills.Groups do
-      if table.contains(dontCare, gmcp.Char.Skills.Groups[i].name) == false then
-        ar.mySkills[gmcp.Char.Skills.Groups[i].name:lower()] = {}
+    ar.mySkills = {}
+    if ars.myInfo.class then
+      if io.exists(ar.file .. "/skills/skill list " .. ars.myInfo.class) then
+        table.load(ar.file .. "/skills/skill list " .. ars.myInfo.class, ar.mySkills)
+        return
+      else
+        sendGMCP("Char.Skills.Get " .. yajl.to_string({}))
+        send(" ")
       end
     end
-    raiseEvent("ar.gotSkillGroups")
+    send(" ")
+    if gmcp.Char.Skills then
+      for i = 1, #gmcp.Char.Skills.Groups do
+        if table.contains(dontCare, gmcp.Char.Skills.Groups[i].name) == false then
+          ar.mySkills[gmcp.Char.Skills.Groups[i].name:lower()] = {}
+        end
+      end
+      raiseEvent("ar.gotSkillGroups")
+    end
   end
+registerAnonymousEventHandler("ar.welcome", "ar.skills.iHave")
 registerAnonymousEventHandler("ars.changeClass", "ar.skills.iHave")</script>
 						<eventHandlerList />
 					</Script>
